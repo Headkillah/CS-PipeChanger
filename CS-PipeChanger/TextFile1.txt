@@ -1,0 +1,222 @@
+﻿größe eines objekts: new vector2(weite, höhe)
+position eines objekts: new vector3(weite, höhe)
+
+
+
+               //Child Container, holds all the other labels / buttons / textfields
+                UIPanel pnlContainer = base.AddUIComponent<UIPanel>();
+                pnlContainer.name = "ContainerPanel";
+                pnlContainer.anchor = UIAnchorStyle.Right | UIAnchorStyle.Left | UIAnchorStyle.Top;
+                pnlContainer.transform.localPosition = Vector3.zero;
+                pnlContainer.width = base.width;
+                pnlContainer.height = base.height - 60f;
+                pnlContainer.autoLayout = true;
+                pnlContainer.autoLayoutDirection = LayoutDirection.Vertical;
+                pnlContainer.autoLayoutPadding = new RectOffset(0, 0, 0, 1);
+                pnlContainer.autoLayoutStart = LayoutStart.TopLeft;
+                pnlContainer.relativePosition = new Vector3(0f, 50f);
+
+                UIPanel parent = pnlContainer.AddUIComponent<UIPanel>();
+                parent.width = base.width;
+                parent.height = 30f;
+                parent.autoLayoutDirection = LayoutDirection.Horizontal;
+                parent.autoLayoutStart = LayoutStart.TopLeft;
+                parent.autoLayoutPadding = new RectOffset(8, 0, 4, 4);
+                parent.autoLayout = true;
+
+
+
+
+                UILabel label2 = parent.AddUIComponent<UILabel>();
+                label2.text = "Upgrade cost:";
+                label2.font = SamsamTS.UIUtils.Font;
+                label2.textColor = Color.white;
+                label2.textScale = 0.8f;
+                label2.autoSize = false;
+                label2.height = 30f;
+                label2.width = 100f;
+                label2.verticalAlignment = UIVerticalAlignment.Middle;
+
+
+                label2 = parent.AddUIComponent<UILabel>();
+                label2.text = 0.ToString(ColossalFramework.Globalization.Locale.Get("MONEY_FORMAT"), LocaleManager.cultureInfo);
+                label2.font = SamsamTS.UIUtils.Font;
+                label2.textColor = Color.white;
+                label2.textScale = 0.8f;
+                label2.autoSize = false;
+                label2.height = 30f;
+                label2.width = 140f;
+                label2.textAlignment = UIHorizontalAlignment.Right;
+                label2.verticalAlignment = UIVerticalAlignment.Middle;
+
+                this._lblupgradeCost = label2;
+
+                UIButton button = SamsamTS.UIUtils.CreateButton(pnlContainer, "Calculate", 75, 22, new Vector3(130, 110));
+               // button.text = "Calculate";
+                button.tooltip = "Calculates the upgrade cost and the pipe count.";
+              //  button.textScale = 0.8f;
+              //  button.width = 75f;
+               // button.height = 22f;
+              //  button.relativePosition = new Vector3(130, 110);
+                button.eventClick += (c, p) => Singleton<SimulationManager>.instance.AddAction(new System.Action(this.CalculateUpgrade));
+
+                UIPanel local3 = pnlContainer.AddUIComponent<UIPanel>();
+                local3.width = base.width;
+                local3.height = 30f;
+                local3.autoLayoutDirection = LayoutDirection.Horizontal;
+                local3.autoLayoutStart = LayoutStart.TopLeft;
+                local3.autoLayoutPadding = new RectOffset(8, 0, 4, 4);
+                local3.autoLayout = true;
+
+                label2 = local3.AddUIComponent<UILabel>();
+                label2.text = "Pipe count:";
+                label2.font = SamsamTS.UIUtils.Font;
+                label2.textColor = Color.white;
+                label2.textScale = 0.8f;
+                label2.autoSize = false;
+                label2.height = 30f;
+                label2.width = 100f;
+                label2.verticalAlignment = UIVerticalAlignment.Middle;
+
+                label2 = local3.AddUIComponent<UILabel>();
+                label2.text = "0";
+                label2.font = SamsamTS.UIUtils.Font;
+                label2.textColor = Color.white;
+                label2.textScale = 0.8f;
+                label2.autoSize = false;
+                label2.height = 30f;
+                label2.width = 140f;
+                label2.textAlignment = UIHorizontalAlignment.Right;
+                label2.verticalAlignment = UIVerticalAlignment.Middle;
+                this._lblpipeCount = label2;
+
+                UIPanel local4 = pnlContainer.AddUIComponent<UIPanel>();
+                local4.width = base.width;
+                local4.height = 30f;
+                local4.autoLayoutDirection = LayoutDirection.Horizontal;
+                local4.autoLayoutStart = LayoutStart.TopLeft;
+                local4.autoLayoutPadding = new RectOffset(8, 0, 4, 4);
+                local4.autoLayout = true;
+                button = SamsamTS.UIUtils.CreateButton(local4, "Upgrade", 75, 22, new Vector3());
+                button.text = "Upgrade";
+                button.tooltip = "Tries to upgrade all water pipes to heating pipes.";
+                button.textScale = 0.8f;
+                button.width = 75f;
+                button.height = 22f;
+                button.eventClick += (c, p) => Singleton<SimulationManager>.instance.AddAction(new System.Action(this.UpgradePipes));
+
+                label2 = local4.AddUIComponent<UILabel>();
+                label2.text = "";
+                label2.font = SamsamTS.UIUtils.Font;
+                label2.textColor = Color.white;
+                label2.textScale = 0.8f;
+                label2.autoSize = false;
+                label2.height = 30f;
+                label2.width = (base.width - button.width) - 16f;
+                label2.verticalAlignment = UIVerticalAlignment.Middle;
+                this._lblupgradeResult = label2;
+
+                //Alles hier ist für Downgrade auf Water Pipes
+                UIPanel pnlWaterPipeDowngrade = pnlContainer.AddUIComponent<UIPanel>();
+                pnlWaterPipeDowngrade.width = base.width;
+                pnlWaterPipeDowngrade.height = 30f;
+                pnlWaterPipeDowngrade.autoLayoutDirection = LayoutDirection.Horizontal;
+                pnlWaterPipeDowngrade.autoLayoutStart = LayoutStart.TopLeft;
+                pnlWaterPipeDowngrade.autoLayoutPadding = new RectOffset(8, 0, 4, 4);
+                pnlWaterPipeDowngrade.autoLayout = true;
+
+                label2 = pnlWaterPipeDowngrade.AddUIComponent<UILabel>();
+                label2.text = "Water Pipe count:";
+                label2.font = SamsamTS.UIUtils.Font;
+                label2.textColor = Color.green;
+                label2.textScale = 0.8f;
+                label2.autoSize = false;
+                label2.height = 30f;
+                label2.width = 130f;
+                label2.verticalAlignment = UIVerticalAlignment.Middle;
+                label2 = pnlWaterPipeDowngrade.AddUIComponent<UILabel>();
+
+                label2.text = "Downgrade cost:";
+                label2.font = SamsamTS.UIUtils.Font;
+                label2.textColor = Color.green;
+                label2.textScale = 0.8f;
+                label2.autoSize = false;
+                label2.height = 30f;
+                label2.width = 130f;
+                label2.verticalAlignment = UIVerticalAlignment.Middle;
+                label2 = pnlWaterPipeDowngrade.AddUIComponent<UILabel>();
+                label2.text = 0.ToString(ColossalFramework.Globalization.Locale.Get("MONEY_FORMAT"), LocaleManager.cultureInfo);
+                label2.font = SamsamTS.UIUtils.Font;
+                label2.textColor = Color.yellow;
+                label2.textScale = 0.8f;
+                label2.autoSize = false;
+                label2.height = 30f;
+                label2.width = 140f;
+                label2.textAlignment = UIHorizontalAlignment.Right;
+                label2.verticalAlignment = UIVerticalAlignment.Middle;
+                this._lbldowngradeCost = label2;
+
+                UIButton btnCalcDownG = SamsamTS.UIUtils.CreateButton(pnlContainer, "Calculate Downgrade", 150, 22, new Vector3(130, 110));
+                //btnCalcDownG.text = "Calculate DownGrade";
+                btnCalcDownG.tooltip = "Calculates the downgrade cost and the water pipe count.";
+                //btnCalcDownG.textScale = 0.8f;
+                //btnCalcDownG.width = 150f;
+                //btnCalcDownG.height = 22f;
+                //btnCalcDownG.relativePosition = new Vector3(130, 110);
+                btnCalcDownG.eventClick += (c, p) => Singleton<SimulationManager>.instance.AddAction(new System.Action(this.CalculateDowngrade));
+
+                UIPanel local7 = pnlContainer.AddUIComponent<UIPanel>();
+                local7.width = base.width;
+                local7.height = 30f;
+                local7.autoLayoutDirection = LayoutDirection.Horizontal;
+                local7.autoLayoutStart = LayoutStart.TopLeft;
+                local7.autoLayoutPadding = new RectOffset(8, 0, 4, 4);
+                local7.autoLayout = true;
+
+                label2 = local7.AddUIComponent<UILabel>();
+                label2.text = "Water Pipe count:";
+                label2.font = SamsamTS.UIUtils.Font;
+                label2.textColor = Color.green;
+                label2.textScale = 0.8f;
+                label2.autoSize = false;
+                label2.height = 30f;
+                label2.width = 130f;
+                label2.verticalAlignment = UIVerticalAlignment.Middle;
+                label2 = local7.AddUIComponent<UILabel>();
+                label2.text = "0";
+                label2.font = SamsamTS.UIUtils.Font;
+                label2.textColor = Color.green;
+                label2.textScale = 0.8f;
+                label2.autoSize = false;
+                label2.height = 30f;
+                label2.width = 140f;
+                label2.textAlignment = UIHorizontalAlignment.Right;
+                label2.verticalAlignment = UIVerticalAlignment.Middle;
+                this._lblwaterpipeCount = label2;
+
+                UIPanel local8 = pnlContainer.AddUIComponent<UIPanel>();
+                local8.width = base.width;
+                local8.height = 30f;
+                local8.autoLayoutDirection = LayoutDirection.Horizontal;
+                local8.autoLayoutStart = LayoutStart.TopLeft;
+                local8.autoLayoutPadding = new RectOffset(8, 0, 4, 4);
+                local8.autoLayout = true;
+
+                button = SamsamTS.UIUtils.CreateButton(local8, "Downgrade", 75, 22, new Vector3());
+                button.text = "Downgrade";
+                button.tooltip = "Tries to downgrade all heating pipes to water pipes.";
+                button.textScale = 0.8f;
+                button.width = 75f;
+                button.height = 22f;
+                button.eventClick += (c, p) => Singleton<SimulationManager>.instance.AddAction(new System.Action(this.DowngradePipes));
+
+                label2 = local8.AddUIComponent<UILabel>();
+                label2.text = "";
+                label2.font = SamsamTS.UIUtils.Font;
+                label2.textColor = Color.white;
+                label2.textScale = 0.8f;
+                label2.autoSize = false;
+                label2.height = 30f;
+                label2.width = (base.width - button.width) - 16f;
+                label2.verticalAlignment = UIVerticalAlignment.Middle;
+                this._lbldowngradeResult = label2;
