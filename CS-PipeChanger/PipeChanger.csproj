@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PipeChanger</RootNamespace>
-    <AssemblyName>Pipe Changer</AssemblyName>
+    <AssemblyName>PipeChanger</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>false</Deterministic>
@@ -70,7 +70,6 @@
     <Content Include="Reference Files\ColossalManaged.dll" />
     <Content Include="Reference Files\ICities.dll" />
     <Content Include="Reference Files\UnityEngine.dll" />
-    <Content Include="TextFile1.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -1,72 +1,84 @@
-﻿using System;
-using UnityEngine;
-using ColossalFramework;
-using ColossalFramework.UI;
+﻿using ColossalFramework;
 using ColossalFramework.Globalization;
+using ColossalFramework.UI;
+using System;
+using UnityEngine;
 
 namespace PipeChanger.GUI
 {
     public class MainPanel : UIPanel
-    {        
-        private static readonly float _panelWidth = 370f; //The width of our gui in pixel points
-        private static readonly float _panelHeight = 350f; // the height of our gui
-        private static readonly float _titleHeight = 40f;
+    {
+        private static readonly float _panelWidth = 370; //The width of our gui in pixel points
+        private static readonly float _panelHeight = 410; // the height of our gui
+        private static readonly float _titleHeight = 40;
 
         private UIPanel _mainPanel;
-       // private UIPanel _pnlContainer;
+        private UILabel _lblTitle; // The title label
         private UIDragHandle _dragHandle;
-
-        private UILabel _lblpipeCount;
-        private UILabel _lblupgradeCost;
-        private UILabel _lblupgradeResult;
-        private UILabel _lblwaterpipeCount;
-        private UILabel _lbldowngradeCost;
-        private UILabel _lbldowngradeResult;
-        private UILabel _lblMoneyAmount;    
-        private UILabel _lblTitle;
-        
-        private UIButton _btnUpgrade;
-        private UIButton _btnDowngrade;
         private UIButton _btnClose;
+        private UILabel _infoLabel;
+
+        // Upgrade Panel
+        private UIPanel upgradePanel;
+
+        private UIButton UpgradeButton;
+        private UIButton CalcUpgradeBtn;
+        private UILabel UpgradeTitleLabel;
+        private UILabel PipeCalcLabel; // Used for show number of pipes after pressing calculate button
+        private UILabel WaterPipeCountLabel; // Shows the number of pipes to upgrade
+        private UILabel UpgradeCostLabel;
+        private UILabel UpgradeResultLabel; // Shows the upgrade result
+        private UILabel MoneyAmountLabel; // Shows the amount for upgrade
+
+        // Downgrade Panel
+        private UIPanel downgradePanel;
+
+        private UIButton DowngradeButton;
+        private UIButton CalcDngradeBtn;
+        private UILabel DowngradeTitleLabel;
+        private UILabel DGPipeCalcLabel; // Used for show number of pipes after pressing calculate button
+        private UILabel DGHeatingPipeCountLabel; // Shows the number of pipes to upgrade
+        private UILabel DowngradeCostLabel;
+        private UILabel DowngradeResultLabel; // Shows the upgrade result
+        private UILabel DGMoneyAmountLabel; // Shows the amount for upgrade
 
         /// <summary>
         /// Creates the Mainpanel / Close button / DragHandler
         /// </summary>
-        public void SetupMainPanel()
+        public void Initialize()
         {
             //Main Panel
             if (_mainPanel != null) { _mainPanel.OnDestroy(); }
 
+            isVisible = false;
             _mainPanel = AddUIComponent<UIPanel>();
             _mainPanel.name = "PipeChangerMainPanel";
             _mainPanel.backgroundSprite = "UnlockingPanel2";
-            _mainPanel.size = new Vector2(_panelWidth, _panelHeight);
             _mainPanel.color = new Color32(75, 75, 135, 255);
-            _mainPanel.canFocus = true;
-            _mainPanel.isInteractive = true;
-            _mainPanel.isVisible = false;
-
             width = _panelWidth; //UIComponent
-            height = 320; //UIComponent
-
+            height = 380; //UIComponent
+            _mainPanel.width = _panelWidth;
+            _mainPanel.height = _panelHeight;
             relativePosition = new Vector3(ModSettings.instance.MenuPosX, ModSettings.instance.MenuPosY);
             _mainPanel.relativePosition = Vector3.zero;
 
+            if (ModSettings.VerboseLogging) { Util.DebugPrint("MainPanel added"); }
+
             //Title Label
-            //_lblTitle = SamsamTS.UIUtils.CreateTitleLabel(_mainPanel, "TitleLabel", "Pipe Changer", new Vector3((base.width - 240f), -15f));
-            _lblTitle = SamsamTS.UIUtils.CreateTitleLabel(_mainPanel, "TitleLabel", "Pipe Changer", new Vector3(100, 12));
-            if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("Title Label created"); }
+            _lblTitle = AddUIComponent<UILabel>();
+            _lblTitle = SamsamTS.UIUtils.CreateTitleLabel(_mainPanel, "TitleLabel", "Pipe Changer", new Vector3(100, 5));
 
             //DragHandler
-            SamsamTS.UIUtils.CreateDragHandle(_mainPanel, _panelWidth, _titleHeight);
-            if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("DragHandler created"); }
+            _dragHandle = SamsamTS.UIUtils.CreateDragHandle(_mainPanel, _panelWidth, _titleHeight);
 
-            //Close Button           
+            //Close Button
+            //_btnClose = _mainPanel.AddUIComponent<UIButton>();
             _btnClose = SamsamTS.UIUtils.CreateCloseButton(_mainPanel);
             _btnClose.eventClick += CloseButtonClick;
-            if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("CloseButton created"); }
 
             SetUpControls();
+
+            absolutePosition = new Vector3(ModSettings.instance.MenuPosX, ModSettings.instance.MenuPosY);
         }
 
         /// <summary>
@@ -76,53 +88,112 @@ namespace PipeChanger.GUI
         {
             try
             {
-                //UIPanel pnlContainer = base.AddUIComponent<UIPanel>();
-                //pnlContainer.name = "ContainerPanel";
-                //pnlContainer.anchor = UIAnchorStyle.Right | UIAnchorStyle.Left | UIAnchorStyle.Top;
-                //pnlContainer.transform.localPosition = Vector3.zero;
-                //pnlContainer.width = base.width;
-                //pnlContainer.height = base.height;
-                //pnlContainer.autoLayout = false;
-                // pnlContainer.autoLayoutDirection = LayoutDirection.Vertical;
-                // pnlContainer.autoLayoutPadding = new RectOffset(0, 0, 0, 1);
-                // pnlContainer.autoLayoutStart = LayoutStart.TopLeft;
-                // pnlContainer.relativePosition = new Vector3(0f, 50f);
+                upgradePanel = _mainPanel.AddUIComponent<UIPanel>();
+                upgradePanel.name = "UpgradePanel";
+                upgradePanel.anchor = UIAnchorStyle.Right | UIAnchorStyle.Left | UIAnchorStyle.Top;
+                upgradePanel.relativePosition = new Vector3(0, 40);
+                upgradePanel.width = _mainPanel.width;
+                upgradePanel.height = 200;
 
-                _lblupgradeCost = SamsamTS.UIUtils.CreateLabel(_mainPanel, "UpgradeCostLabel", "Upgrade cost:", new Vector2(0, 30));
-                _lblupgradeCost.textColor = Color.white;
-                _lblupgradeCost.autoSize = false;
-                _lblupgradeCost.height = 30;
-                _lblupgradeCost.width = 130;
-                _lblupgradeCost.verticalAlignment = UIVerticalAlignment.Middle;
+                UpgradeTitleLabel = SamsamTS.UIUtils.CreateLabel(upgradePanel, "UpgradeTitleLabel", "Upgrade WaterPipes", new Vector3(95, 40));
 
-                _lblMoneyAmount = SamsamTS.UIUtils.CreateLabel(_mainPanel, "MoneyFormatLabel", "0.00", new Vector2(0, 180));
-                _lblMoneyAmount.textColor = Color.white;
-                _lblMoneyAmount.autoSize = false;
-                _lblMoneyAmount.height = 30;
-                _lblMoneyAmount.width = 140;
-                _lblMoneyAmount.textAlignment = UIHorizontalAlignment.Right;
-                _lblMoneyAmount.verticalAlignment = UIVerticalAlignment.Middle;
+                CalcUpgradeBtn = SamsamTS.UIUtils.CreateButton(upgradePanel, "CalculateUgBtn", "Calculate Upgrade", new Vector3(10, 70));
+                CalcUpgradeBtn.width = 160;
+                CalcUpgradeBtn.height = 28;
+                CalcUpgradeBtn.eventClick += (c, p) => Singleton<SimulationManager>.instance.AddAction(new System.Action(this.CalculateUpgrade));
 
-                _lblpipeCount = SamsamTS.UIUtils.CreateLabel(_mainPanel, "PipeCountLabel", "Pipe count:", new Vector2(0, 110f));
-                _lblpipeCount.autoSize = false;
-                _lblpipeCount.height = 30f;
-                _lblpipeCount.width = 100f;
-                _lblpipeCount.verticalAlignment = UIVerticalAlignment.Middle;
+                UpgradeCostLabel = SamsamTS.UIUtils.CreateLabel(upgradePanel, "UpgradeCostLabel", "Upgrade cost:", new Vector3(10, 95));
+                UpgradeCostLabel.textColor = Color.white;
+                UpgradeCostLabel.autoSize = false;
+                UpgradeCostLabel.height = 25;
+                UpgradeCostLabel.width = 130;
+                UpgradeCostLabel.verticalAlignment = UIVerticalAlignment.Middle;
 
-                _btnUpgrade = SamsamTS.UIUtils.CreateButton(_mainPanel, "CalculateButton", "Calculate", new Vector2(60, 110));
-                _btnUpgrade.width = 75f;
-                _btnUpgrade.height = 22f;
-                _btnUpgrade.eventClick += (c, p) => Singleton<SimulationManager>.instance.AddAction(new System.Action(this.CalculateUpgrade));
+                MoneyAmountLabel = SamsamTS.UIUtils.CreateLabel(upgradePanel, "MoneyAmountLabel", "0.00", new Vector3(180, 97));
+                MoneyAmountLabel.textColor = Color.white;
+                MoneyAmountLabel.autoSize = true;
+                MoneyAmountLabel.textAlignment = UIHorizontalAlignment.Right;
+                MoneyAmountLabel.verticalAlignment = UIVerticalAlignment.Middle;
 
+                PipeCalcLabel = SamsamTS.UIUtils.CreateLabel(upgradePanel, "PipeCalcLabel", "Pipe count:", new Vector3(10, 120));
+                PipeCalcLabel.autoSize = false;
+                PipeCalcLabel.height = 25;
+                PipeCalcLabel.width = 100;
+                PipeCalcLabel.verticalAlignment = UIVerticalAlignment.Middle;
 
+                WaterPipeCountLabel = upgradePanel.AddUIComponent<UILabel>();
+                WaterPipeCountLabel.cachedName = "WaterPipeCountLabel";
+                WaterPipeCountLabel.relativePosition = new Vector3(120, 124);
+                WaterPipeCountLabel.text = "0";
+                WaterPipeCountLabel.autoSize = false;
+                WaterPipeCountLabel.verticalAlignment = UIVerticalAlignment.Middle;
 
+                UpgradeButton = SamsamTS.UIUtils.CreateButton(upgradePanel, "UpgradeBtn", "Upgrade", new Vector3(10, 150));
+                UpgradeButton.tooltip = "Click to upgrade all water pipes to heating pipes.";
+                UpgradeButton.textScale = 1.0f;
+                UpgradeButton.width = 85;
+                UpgradeButton.height = 25;
+                UpgradeButton.eventClick += (c, p) => Singleton<SimulationManager>.instance.AddAction(new System.Action(this.UpgradePipes));
 
+                UpgradeResultLabel = upgradePanel.AddUIComponent<UILabel>();
+                UpgradeResultLabel.relativePosition = new Vector3(120, 150);
+                UpgradeResultLabel.text = "";
+                UpgradeResultLabel.autoSize = true;
+                UpgradeResultLabel.verticalAlignment = UIVerticalAlignment.Middle;
 
-                // From here to end everythin for downgrading...
+                // From here to end everything for downgrading...
+                downgradePanel = _mainPanel.AddUIComponent<UIPanel>();
+                downgradePanel.name = "DowngradePanel";
+                downgradePanel.anchor = UIAnchorStyle.Right | UIAnchorStyle.Left | UIAnchorStyle.Top;
+                downgradePanel.relativePosition = new Vector3(0, 205);
+                downgradePanel.width = _mainPanel.width;
+                downgradePanel.height = 200;
 
+                DowngradeTitleLabel = SamsamTS.UIUtils.CreateLabel(downgradePanel, "DowngradeTitleLabel", "Downgrade Heatpipes", new Vector3(95, 40));
 
+                CalcDngradeBtn = SamsamTS.UIUtils.CreateButton(downgradePanel, "CalcDngradeBtn", "Calculate Downgrade", new Vector3(10, 70));
+                CalcDngradeBtn.width = 190;
+                CalcDngradeBtn.height = 28;
+                CalcDngradeBtn.eventClick += (c, p) => Singleton<SimulationManager>.instance.AddAction(new System.Action(this.CalculateDowngrade));
 
-                if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("[CreatePanel]: WPU panel created."); }
+                DowngradeCostLabel = SamsamTS.UIUtils.CreateLabel(downgradePanel, "DowngradeCostLabel", "Downgrade cost:", new Vector3(10, 95));
+                DowngradeCostLabel.textColor = Color.white;
+                DowngradeCostLabel.autoSize = false;
+                DowngradeCostLabel.height = 25;
+                DowngradeCostLabel.width = 140;
+                DowngradeCostLabel.verticalAlignment = UIVerticalAlignment.Middle;
+
+                DGMoneyAmountLabel = SamsamTS.UIUtils.CreateLabel(downgradePanel, "DGMoneyAmountLabel", "0.00", new Vector3(180, 100));
+                DGMoneyAmountLabel.textColor = Color.white;
+                DGMoneyAmountLabel.autoSize = true;
+                DGMoneyAmountLabel.textAlignment = UIHorizontalAlignment.Right;
+                DGMoneyAmountLabel.verticalAlignment = UIVerticalAlignment.Middle;
+
+                DGPipeCalcLabel = SamsamTS.UIUtils.CreateLabel(downgradePanel, "DGPipeCalcLabel", "HeatPipe count:", new Vector3(10, 120));
+                DGPipeCalcLabel.autoSize = false;
+                DGPipeCalcLabel.height = 25;
+                DGPipeCalcLabel.width = 130;
+                DGPipeCalcLabel.verticalAlignment = UIVerticalAlignment.Middle;
+
+                DGHeatingPipeCountLabel = downgradePanel.AddUIComponent<UILabel>();
+                DGHeatingPipeCountLabel.cachedName = "DGHeatingPipeCountLabel";
+                DGHeatingPipeCountLabel.relativePosition = new Vector3(150, 124);
+                DGHeatingPipeCountLabel.text = "0";
+                DGHeatingPipeCountLabel.autoSize = false;
+                DGHeatingPipeCountLabel.verticalAlignment = UIVerticalAlignment.Middle;
+
+                DowngradeButton = SamsamTS.UIUtils.CreateButton(downgradePanel, "DowngradeButton", "Downgrade", new Vector3(10, 150));
+                DowngradeButton.tooltip = "Click to downgrade all heating pipes to water pipes.";
+                DowngradeButton.textScale = 1.0f;
+                DowngradeButton.width = 150;
+                DowngradeButton.height = 25;
+                DowngradeButton.eventClick += (c, p) => Singleton<SimulationManager>.instance.AddAction(new System.Action(this.DowngradePipes));
+
+                DowngradeResultLabel = SamsamTS.UIUtils.CreateLabel(downgradePanel, "DowngradeResultLabel", "", new Vector3(170, 155));
+                DowngradeResultLabel.autoSize = true;
+                DowngradeResultLabel.verticalAlignment = UIVerticalAlignment.Middle;
+
+                _infoLabel = SamsamTS.UIUtils.CreateLabel(downgradePanel, "InfoLabel", "", new Vector3(40, 170));
             }
             catch (Exception ex)
             {
@@ -133,35 +204,45 @@ namespace PipeChanger.GUI
         protected override void OnPositionChanged()
         {
             base.OnPositionChanged();
-           if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("OnPositionChanged called"); }
 
             bool posChanged = ModSettings.instance.MenuPosX != (int)absolutePosition.x
                               || ModSettings.instance.MenuPosY != (int)absolutePosition.y;
             if (posChanged)
             {
-                Vector2 resolution = GetUIView().GetScreenResolution();
-
-                absolutePosition = new Vector2(
-                    Mathf.Clamp(absolutePosition.x, 0, resolution.x - width),
-                    Mathf.Clamp(absolutePosition.y, 0, resolution.y - height));
-
-                if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("absolutePosition: " + absolutePosition); }
-
                 ModSettings.instance.MenuPosX.value = (int)absolutePosition.x;
                 ModSettings.instance.MenuPosY.value = (int)absolutePosition.y;
+                //    Debug.Log("Xpos: " + (int)absolutePosition.x + " Ypos: " + (int)absolutePosition.y);
+            }
+        }
+
+        internal void ForceUpdateMenuPosition()
+        {
+            absolutePosition = new Vector3(ModSettings.instance.MenuPosX, ModSettings.instance.MenuPosY);
+            // if (ModSettings.VerboseLogging) { Util.DebugPrint("Position reseted. absolutePosition: " + absolutePosition); }
+        }
+
+        // Reset the panels
+        public void OnVisibilityChanged(UIComponent component, bool value)
+        {
+            base.isVisible = value;
+            if (base.isVisible)
+            {
+                Debug.Log("OnVisibilityChanged called");
+                MoneyAmountLabel.text = "0.00";
+                MoneyAmountLabel.textColor = Color.white;
+                WaterPipeCountLabel.text = "0";
+                UpgradeResultLabel.text = "";
+                DGMoneyAmountLabel.text = "0.00";
+                DGMoneyAmountLabel.textColor = Color.white;
+                DGHeatingPipeCountLabel.text = "0";
+                DowngradeResultLabel.text = "";
             }
         }
 
         private void CloseButtonClick(UIComponent component, UIMouseEventParameter eventparam)
         {
             eventparam.Use();
-            isVisible = false;
-        }
-
-        internal void ForceUpdateMenuPosition()
-        {
-            absolutePosition = new Vector3(ModSettings.instance.MenuPosX, ModSettings.instance.MenuPosY);
-            if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("Position reseted. absolutePosition: " + absolutePosition); }
+            Hide();
         }
 
         private void GetSegmentControlPoints(int segmentIndex, out NetTool.ControlPoint startPoint, out NetTool.ControlPoint middlePoint, out NetTool.ControlPoint endPoint)
@@ -194,79 +275,65 @@ namespace PipeChanger.GUI
         {
             try
             {
-                if (ModSettings.instance.DEBUG_LOG_ON)
-                {
-                    Util.DebugPrint("CalculateUpgrade");
-                }
+                if (ModSettings.VerboseLogging) { Util.DebugPrint("CalculateUpgrade"); }
 
                 int totalCost = 0;
                 float factor = 0.01f;
 
                 ToolBase.ToolErrors none = ToolBase.ToolErrors.None;
-                int num2 = this.UpgradeWaterToHeat(true, out totalCost, out none);
-                this._lblMoneyAmount.text = (totalCost * factor).ToString(ColossalFramework.Globalization.Locale.Get("MONEY_FORMAT"), LocaleManager.cultureInfo);
-
+                int num2 = UpgradeWaterToHeat(true, out totalCost, out none);
+                MoneyAmountLabel.text = (totalCost * factor).ToString(ColossalFramework.Globalization.Locale.Get("MONEY_FORMAT"), LocaleManager.cultureInfo);
 
                 if (Singleton<EconomyManager>.instance.PeekResource(EconomyManager.Resource.Construction, totalCost) != totalCost)
                 {
-                    this._lblMoneyAmount.textColor = Color.red;
+                    MoneyAmountLabel.textColor = Color.red;
                 }
                 else
                 {
-                    this._lblMoneyAmount.textColor = Color.green;
+                    MoneyAmountLabel.textColor = Color.green;
                 }
-                this._lblpipeCount.text += num2.ToString();
-
-            } 
-
+                WaterPipeCountLabel.text = num2.ToString();
+            }
             catch (Exception ex)
-            { 
-              Util.LogException(ex);
-            } 
+            {
+                Util.LogException(ex);
+            }
         }
 
         private void CalculateDowngrade()
         {
             try
             {
-                if (ModSettings.instance.DEBUG_LOG_ON)
-                {
-                    Util.DebugPrint("CalculateDowngrade");
-                }
+                if (ModSettings.VerboseLogging) { Util.DebugPrint("CalculateDowngrade() called"); }
 
                 int totalCost = 0;
                 float factor = 0.01f;
 
                 ToolBase.ToolErrors none = ToolBase.ToolErrors.None;
-                int num2 = this.DowngradeHeatToWater(true, out totalCost, out none);
-                this._lbldowngradeCost.text = (totalCost * factor).ToString(ColossalFramework.Globalization.Locale.Get("MONEY_FORMAT"), LocaleManager.cultureInfo);
+                int num2 = DowngradeHeatToWater(true, out totalCost, out none);
+                DGMoneyAmountLabel.text = (totalCost * factor).ToString(ColossalFramework.Globalization.Locale.Get("MONEY_FORMAT"), LocaleManager.cultureInfo);
 
                 if (Singleton<EconomyManager>.instance.PeekResource(EconomyManager.Resource.Construction, totalCost) != totalCost)
                 {
-                    this._lbldowngradeCost.textColor = Color.red;
+                    this.DGMoneyAmountLabel.textColor = Color.red;
                 }
                 else
                 {
-                    this._lbldowngradeCost.textColor = Color.green;
+                    this.DGMoneyAmountLabel.textColor = Color.green;
                 }
-                this._lblwaterpipeCount.text = num2.ToString();
-
+                DGHeatingPipeCountLabel.text = num2.ToString();
             }
-
             catch (Exception ex)
             {
                 Util.LogException(ex);
-            } 
+            }
         }
 
         private void UpgradePipes()
         {
             try
             {
-                if (ModSettings.instance.DEBUG_LOG_ON)
-                {
-                    Util.DebugPrint("UpgradePipes");
-                }
+                if (ModSettings.VerboseLogging) { Util.DebugPrint("UpgradePipes"); }
 
                 int totalCost = 0;
                 ToolBase.ToolErrors none = ToolBase.ToolErrors.None;
@@ -275,22 +342,21 @@ namespace PipeChanger.GUI
                 if (none != ToolBase.ToolErrors.None)
                 {
                     str = " Not enough money.";
-                    this._lblupgradeResult.textColor = Color.red;
+                    this.UpgradeResultLabel.textColor = Color.red;
                 }
                 else
                 {
-                    this._lblupgradeResult.textColor = Color.green;
+                    this.UpgradeResultLabel.textColor = Color.green;
                 }
 
                 object[] objArray1 = new object[] { "Upgraded ", num2, " pipes.", str };
-                this._lblupgradeResult.text = string.Concat(objArray1);
+                UpgradeResultLabel.text = string.Concat(objArray1);
 
-                if (ModSettings.instance.DEBUG_LOG_ON)
+                if (ModSettings.VerboseLogging)
                 {
-                    Util.DebugPrint(PipeChanger.MODNAME + " " + PipeChanger.MODVERSION + " All pipes upgraded");
+                    Util.DebugPrint(PipeChanger.MODNAME + " " + PipeChanger.MODVERSION + " " + objArray1.ToString());
                 }
-                }
-
+            }
             catch (Exception ex)
             {
                 Util.LogException(ex);
@@ -301,33 +367,29 @@ namespace PipeChanger.GUI
         {
             try
             {
-                if (ModSettings.instance.DEBUG_LOG_ON)
-                {
-                    Util.DebugPrint("DowngradePipes");
-                }
+                if (ModSettings.VerboseLogging) { Util.DebugPrint("DowngradePipes"); }
 
                 int totalCost = 0;
                 ToolBase.ToolErrors none = ToolBase.ToolErrors.None;
-                int num2 = this.DowngradeHeatToWater(false, out totalCost, out none);
+                int num2 = DowngradeHeatToWater(false, out totalCost, out none);
                 string str = "";
                 if (none != ToolBase.ToolErrors.None)
                 {
                     str = " Not enough money.";
-                    this._lbldowngradeResult.textColor = Color.red;
+                    this.DowngradeResultLabel.textColor = Color.red;
                 }
                 else
                 {
-                    this._lbldowngradeResult.textColor = Color.green;
+                    this.DowngradeResultLabel.textColor = Color.green;
                 }
                 object[] objArray1 = new object[] { "Downgraded ", num2, " pipes.", str };
-                this._lbldowngradeResult.text = string.Concat(objArray1);
+                this.DowngradeResultLabel.text = string.Concat(objArray1);
 
-                if (ModSettings.instance.DEBUG_LOG_ON)
+                if (ModSettings.VerboseLogging)
                 {
-                    Util.DebugPrint(PipeChanger.MODNAME + " " + PipeChanger.MODVERSION + " All pipes downgraded to water pipes");
+                    Util.DebugPrint(PipeChanger.MODNAME + " " + PipeChanger.MODVERSION + " " + objArray1.ToString());
                 }
             }
-
             catch (Exception ex)
             {
                 Util.LogException(ex);
@@ -336,10 +398,7 @@ namespace PipeChanger.GUI
 
         private int UpgradeWaterToHeat(bool test, out int totalCost, out ToolBase.ToolErrors errors)
         {
-            if (ModSettings.instance.DEBUG_LOG_ON)
-            {
-                Util.DebugPrint("UpgradeWaterToHeat");
-            }
+            if (ModSettings.VerboseLogging) { Util.DebugPrint("UpgradeWaterToHeat"); }
 
             int num = 0;
             totalCost = 0;
@@ -347,11 +406,10 @@ namespace PipeChanger.GUI
             NetInfo info = PrefabCollection<NetInfo>.FindLoaded("Heating Pipe");
             if (info == null)
             {
-                if (ModSettings.instance.DEBUG_LOG_ON)
-                {
-                    Util.DebugPrint("Couldn't find Heating Pipe, aborting.");
-                }
-                            
+                if (ModSettings.VerboseLogging) { Util.DebugPrint("Couldn't find Heating Pipe, aborting."); }
+
+                // _infoLabel.textColor = Color.red;
+                // _infoLabel.text = "Couldn't find any Heating Pipe, aborting.";
                 return num;
             }
             NetSegment[] buffer = Singleton<NetManager>.instance.m_segments.m_buffer;
@@ -389,10 +447,7 @@ namespace PipeChanger.GUI
 
         private int DowngradeHeatToWater(bool test, out int totalCost, out ToolBase.ToolErrors errors)
         {
-            if (ModSettings.instance.DEBUG_LOG_ON)
-            {
-                Util.DebugPrint("DowngradeHeatToWater");
-            }
+            if (ModSettings.VerboseLogging) { Util.DebugPrint("DowngradeHeatToWater"); }
 
             int num = 0;
             totalCost = 0;
@@ -401,11 +456,10 @@ namespace PipeChanger.GUI
 
             if (info == null)
             {
-                if (ModSettings.instance.DEBUG_LOG_ON)
-                {
-                    Util.DebugPrint("Couldn't find Water Pipe, aborting.");
-                }
-             
+                if (ModSettings.VerboseLogging) { Util.DebugPrint("Couldn't find any Water Pipe, aborting."); }
+
+                //_infoLabel.textColor = Color.red;
+                //_infoLabel.text = "Couldn't find any Water Pipe, aborting.";
                 return num;
             }
             NetSegment[] buffer = Singleton<NetManager>.instance.m_segments.m_buffer;
@@ -441,7 +495,5 @@ namespace PipeChanger.GUI
 
             return num;
         }
-          
     }
 }
-   

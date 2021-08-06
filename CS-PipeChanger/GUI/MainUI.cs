@@ -8,49 +8,41 @@ namespace PipeChanger.GUI
     {
         public MainPanel MainPanel { get; private set; }
         private SavedInputKey MainKey { get; set; }
-        private float _hitInterval = 0.25f;
-        private float _lastKeybindHitTime = 0;
+
+        private float _lastKeybindHitTime;
+        private readonly float _hitInterval = 0.25f;
 
         public override void Awake()
         {
             base.Awake();
-            if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("base Awake"); }
-            
             var uiView = UIView.GetAView();
-            if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("UIView.GetAView"); }
-            
             MainPanel = (MainPanel)uiView.AddUIComponent(typeof(MainPanel));
-            if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("MainPanel added to uiView"); }
 
-            MainPanel.SetupMainPanel();
-            if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("SetupMainPanel called"); }
-
+            // Add a handler, so if the MainPanel is visible, some labels will be resetted
+            MainPanel.eventVisibilityChanged += new PropertyChangedEventHandler<bool>(MainPanel.OnVisibilityChanged);
+            MainPanel.Initialize();
             MainKey = ModSettings.instance.MainKey;
-            if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("MainKey: " + MainKey); }
+            if (ModSettings.VerboseLogging) Util.DebugPrint("MainKey: " + MainKey);
         }
 
         public override void Update()
         {
-            if (!MainKey.IsPressed() ||  Time.time - _lastKeybindHitTime < _hitInterval) return;
-            if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("MainKey pressed"); }
+            if (!MainKey.IsPressed() || Time.time - _lastKeybindHitTime < _hitInterval) return;
 
             if (!MainPanel.isVisible)
                 MainPanel.Show();
-            
-            if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("MainPanel SHOW"); }
-
             else
-               // MainPanel.Hide();
-            
-            if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("MainPanel HIDE"); }
+                MainPanel.Hide();
+
             _lastKeybindHitTime = Time.time;
         }
 
         public override void OnDestroy()
         {
-            base.OnDestroy();
             if (MainPanel != null)
             {
+                // Remove the Visibility Handler, that was initialized in the MainUI
+                MainPanel.eventVisibilityChanged -= new PropertyChangedEventHandler<bool>(MainPanel.OnVisibilityChanged);
                 Destroy(MainPanel);
                 MainPanel = null;
                 MainKey = null;

@@ -1,22 +1,20 @@
-﻿using ColossalFramework;
-using ColossalFramework.UI;
+﻿using ColossalFramework.UI;
 using ICities;
 using PipeChanger.GUI;
 using System;
-using UnityEngine;
 
 namespace PipeChanger
 {
     public class Loader : LoadingExtensionBase
     {
         #region Fields
-                
+
         public static MainUI MainUi { get; private set; }
 
         #endregion Fields
 
         #region Methods
-        
+
         /// <summary>
         /// Optional
         /// This core function will get called just after the Level - aka your map has been fully loaded.
@@ -25,28 +23,22 @@ namespace PipeChanger
         /// <param name="mode">a LoadMode enum (ie newgame,newmap,loadgame,loadmap,newasset,loadassett)</param>
         public override void OnLevelLoaded(LoadMode mode)
         {
-           try
+            base.OnLevelLoaded(mode);
+
+            try
             {
-                base.OnLevelLoaded(mode);
+                if (mode == LoadMode.NewGame
+                    || mode == LoadMode.LoadGame
+                    || mode == LoadMode.NewScenarioFromGame)
 
-                    // only setup gui when in a real game, not in the asset editor
-                    if (mode == LoadMode.NewGame ||
-                        mode == LoadMode.LoadGame ||
-                        mode == LoadMode.LoadMap ||
-                        mode == LoadMode.NewMap ||
-                        mode == LoadMode.NewScenarioFromGame)
+                    if (!MainUi)
                     {
-                        if (!MainUi)
-                        {
-                        if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("OnLevelLoaded: Creating Pipe Changer MainUI."); }
-                        MainUi = (MainUI) UIView.GetAView().AddUIComponent(typeof(MainUI));
-                            if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("OnLevelLoaded: MainUI component created"); }
-                        }
-                }             
-            }
+                        MainUi = (MainUI)UIView.GetAView().AddUIComponent(typeof(MainUI));
 
-            catch (Exception ex)
-            { Util.LogException(ex); }
+                        if (ModSettings.VerboseLogging) { Util.DebugPrint("OnLevelLoaded: MainUI component created"); }
+                    }
+            }
+            catch (Exception ex) { Util.LogException(ex); }
         }
 
         /// <summary>
@@ -64,14 +56,14 @@ namespace PipeChanger
                 {
                     UnityEngine.Object.Destroy(MainUi);
                     MainUi = null;
-                    if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("Pipe Changer MainUI destroyed."); }
+                    if (ModSettings.VerboseLogging) { Util.DebugPrint("Pipe Changer MainUI destroyed."); }
                 }
             }
             catch (Exception ex)
             {
                 Util.LogException(ex);
-            }          
-        } 
+            }
+        }
 
         #endregion Methods
     }

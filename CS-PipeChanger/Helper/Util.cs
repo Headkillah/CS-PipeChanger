@@ -1,8 +1,7 @@
-﻿using UnityEngine;
-using ColossalFramework.Plugins;
-using System;
-using System.Threading;
+﻿using System;
 using System.IO;
+using System.Threading;
+using UnityEngine;
 
 namespace PipeChanger
 {
@@ -21,7 +20,7 @@ namespace PipeChanger
             WriteLog(s);
         }
 
-         public static void Log(string message)
+        public static void Log(string message)
         {
             if (message == m_lastLog)
             {

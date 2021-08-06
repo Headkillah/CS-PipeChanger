@@ -1,222 +1,377 @@
-﻿größe eines objekts: new vector2(weite, höhe)
-position eines objekts: new vector3(weite, höhe)
+﻿private static UITabContainer _tsContainer;
+        private UITabContainer gtsContainer;
+        private UIScrollablePanel scrollablePanel;
+        private UIPanel _roadsPanel;
+        private UIPanel _highwayPanel;
+
+                        if (_tsContainer == null)
+                {
+                    _tsContainer = GameObject.Find("TSContainer").GetComponent<UITabContainer>();
+                }
+
+                foreach (UIComponent toolPanel in _tsContainer.components)
+                {
+                    if (toolPanel is UIPanel)
+                    {
+                        gtsContainer = toolPanel.GetComponentInChildren<UITabContainer>();
+
+                        if (gtsContainer != null)
+                        {
+                            foreach (UIComponent tabPanel in gtsContainer.components)
+                            {
+                                scrollablePanel = tabPanel.GetComponentInChildren<UIScrollablePanel>();
+
+                                if (scrollablePanel != null)
+                                {
+                                    scrollablePanel.eventVisibilityChanged += (component, value) =>
+                                    {
+                                        if (value)
+                                        {
+                                            DisplayError("RoadsHighwayPanel");
+                                        }
+                                    };
+                                }
+                            }
+                        }
+                    }
+                }
 
 
 
-               //Child Container, holds all the other labels / buttons / textfields
-                UIPanel pnlContainer = base.AddUIComponent<UIPanel>();
-                pnlContainer.name = "ContainerPanel";
-                pnlContainer.anchor = UIAnchorStyle.Right | UIAnchorStyle.Left | UIAnchorStyle.Top;
-                pnlContainer.transform.localPosition = Vector3.zero;
-                pnlContainer.width = base.width;
-                pnlContainer.height = base.height - 60f;
-                pnlContainer.autoLayout = true;
-                pnlContainer.autoLayoutDirection = LayoutDirection.Vertical;
-                pnlContainer.autoLayoutPadding = new RectOffset(0, 0, 0, 1);
-                pnlContainer.autoLayoutStart = LayoutStart.TopLeft;
-                pnlContainer.relativePosition = new Vector3(0f, 50f);
-
-                UIPanel parent = pnlContainer.AddUIComponent<UIPanel>();
-                parent.width = base.width;
-                parent.height = 30f;
-                parent.autoLayoutDirection = LayoutDirection.Horizontal;
-                parent.autoLayoutStart = LayoutStart.TopLeft;
-                parent.autoLayoutPadding = new RectOffset(8, 0, 4, 4);
-                parent.autoLayout = true;
 
 
 
 
-                UILabel label2 = parent.AddUIComponent<UILabel>();
-                label2.text = "Upgrade cost:";
-                label2.font = SamsamTS.UIUtils.Font;
-                label2.textColor = Color.white;
-                label2.textScale = 0.8f;
-                label2.autoSize = false;
-                label2.height = 30f;
-                label2.width = 100f;
-                label2.verticalAlignment = UIVerticalAlignment.Middle;
 
 
-                label2 = parent.AddUIComponent<UILabel>();
-                label2.text = 0.ToString(ColossalFramework.Globalization.Locale.Get("MONEY_FORMAT"), LocaleManager.cultureInfo);
-                label2.font = SamsamTS.UIUtils.Font;
-                label2.textColor = Color.white;
-                label2.textScale = 0.8f;
-                label2.autoSize = false;
-                label2.height = 30f;
-                label2.width = 140f;
-                label2.textAlignment = UIHorizontalAlignment.Right;
-                label2.verticalAlignment = UIVerticalAlignment.Middle;
+größe eines objekts: new vector2(weite, höhe)
+position eines objekts: new vector2(Pos. VERTIKAL (x), Pos. HORIZONTAL (y))
 
-                this._lblupgradeCost = label2;
+mkdir "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)"
+del "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)\$(TargetFileName)"
+xcopy /y "$(TargetPath)" "%LOCALAPPDATA%\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)"
 
-                UIButton button = SamsamTS.UIUtils.CreateButton(pnlContainer, "Calculate", 75, 22, new Vector3(130, 110));
-               // button.text = "Calculate";
-                button.tooltip = "Calculates the upgrade cost and the pipe count.";
-              //  button.textScale = 0.8f;
-              //  button.width = 75f;
-               // button.height = 22f;
-              //  button.relativePosition = new Vector3(130, 110);
-                button.eventClick += (c, p) => Singleton<SimulationManager>.instance.AddAction(new System.Action(this.CalculateUpgrade));
 
-                UIPanel local3 = pnlContainer.AddUIComponent<UIPanel>();
-                local3.width = base.width;
-                local3.height = 30f;
-                local3.autoLayoutDirection = LayoutDirection.Horizontal;
-                local3.autoLayoutStart = LayoutStart.TopLeft;
-                local3.autoLayoutPadding = new RectOffset(8, 0, 4, 4);
-                local3.autoLayout = true;
 
-                label2 = local3.AddUIComponent<UILabel>();
-                label2.text = "Pipe count:";
-                label2.font = SamsamTS.UIUtils.Font;
-                label2.textColor = Color.white;
-                label2.textScale = 0.8f;
-                label2.autoSize = false;
-                label2.height = 30f;
-                label2.width = 100f;
-                label2.verticalAlignment = UIVerticalAlignment.Middle;
 
-                label2 = local3.AddUIComponent<UILabel>();
-                label2.text = "0";
-                label2.font = SamsamTS.UIUtils.Font;
-                label2.textColor = Color.white;
-                label2.textScale = 0.8f;
-                label2.autoSize = false;
-                label2.height = 30f;
-                label2.width = 140f;
-                label2.textAlignment = UIHorizontalAlignment.Right;
-                label2.verticalAlignment = UIVerticalAlignment.Middle;
-                this._lblpipeCount = label2;
+using UnityEngine;
+using ICities;
+using ColossalFramework.UI;
+using System.Runtime.CompilerServices;
 
-                UIPanel local4 = pnlContainer.AddUIComponent<UIPanel>();
-                local4.width = base.width;
-                local4.height = 30f;
-                local4.autoLayoutDirection = LayoutDirection.Horizontal;
-                local4.autoLayoutStart = LayoutStart.TopLeft;
-                local4.autoLayoutPadding = new RectOffset(8, 0, 4, 4);
-                local4.autoLayout = true;
-                button = SamsamTS.UIUtils.CreateButton(local4, "Upgrade", 75, 22, new Vector3());
-                button.text = "Upgrade";
-                button.tooltip = "Tries to upgrade all water pipes to heating pipes.";
-                button.textScale = 0.8f;
-                button.width = 75f;
-                button.height = 22f;
-                button.eventClick += (c, p) => Singleton<SimulationManager>.instance.AddAction(new System.Action(this.UpgradePipes));
+namespace GarbageBinManager
+{
+    /// <summary>
+    /// Utilities for Options Panel UI.
+    /// </summary>
+    public static class PanelUtils
+    {
+        // Original utils code by SamsamTS, updated and added to by algernon.
+        // SamsamTS's comments:
+        // Figuring all this was a pain (no documentation whatsoever)
+        // So if your are using it for your mod consider thanking me (SamsamTS)
+        // Extended Public Transport UI's code helped me a lot so thanks a lot AcidFire
+        //
+        // So, thank you, SamsamTS!
+        //
+        // Algernon's comments:
+        // Figuring out all the additions was also a pain!
+        // But SamsamTS's earlier work made it less painful that it would otherwise be, so thanks again!
 
-                label2 = local4.AddUIComponent<UILabel>();
-                label2.text = "";
-                label2.font = SamsamTS.UIUtils.Font;
-                label2.textColor = Color.white;
-                label2.textScale = 0.8f;
-                label2.autoSize = false;
-                label2.height = 30f;
-                label2.width = (base.width - button.width) - 16f;
-                label2.verticalAlignment = UIVerticalAlignment.Middle;
-                this._lblupgradeResult = label2;
 
-                //Alles hier ist für Downgrade auf Water Pipes
-                UIPanel pnlWaterPipeDowngrade = pnlContainer.AddUIComponent<UIPanel>();
-                pnlWaterPipeDowngrade.width = base.width;
-                pnlWaterPipeDowngrade.height = 30f;
-                pnlWaterPipeDowngrade.autoLayoutDirection = LayoutDirection.Horizontal;
-                pnlWaterPipeDowngrade.autoLayoutStart = LayoutStart.TopLeft;
-                pnlWaterPipeDowngrade.autoLayoutPadding = new RectOffset(8, 0, 4, 4);
-                pnlWaterPipeDowngrade.autoLayout = true;
+        /// <summary>
+        /// Creates a dropdown menu.
+        /// </summary>
+        /// <param name="parent">Parent component</param>
+        /// <param name="text">Text label</param>
+        /// <param name="items">Dropdown menu item list</param>
+        /// <param name="selectedIndex">Initially selected index (default 0)</param>
+        /// <param name="xPos">Relative x position (default 20)</param>
+        /// <param name="yPos">Relative y position (default 0)</param>
+        /// <param name="width">Width of dropdown (default 60)</param>
+        /// <param name="textScale">Text scale (default 0.8)</param>
+        /// <returns>New dropdown menu</returns>
+        public static UIDropDown AddDropdown(UIComponent parent, string text, string[] items, int selectedIndex = 0, float xPos = 20f, float yPos = 0f, float width = 60f, float textScale = 0.8f)
+        {
+            // Constants.
+            const float Height = 25f;
+            float itemHeight = 25f * textScale;
 
-                label2 = pnlWaterPipeDowngrade.AddUIComponent<UILabel>();
-                label2.text = "Water Pipe count:";
-                label2.font = SamsamTS.UIUtils.Font;
-                label2.textColor = Color.green;
-                label2.textScale = 0.8f;
-                label2.autoSize = false;
-                label2.height = 30f;
-                label2.width = 130f;
-                label2.verticalAlignment = UIVerticalAlignment.Middle;
-                label2 = pnlWaterPipeDowngrade.AddUIComponent<UILabel>();
 
-                label2.text = "Downgrade cost:";
-                label2.font = SamsamTS.UIUtils.Font;
-                label2.textColor = Color.green;
-                label2.textScale = 0.8f;
-                label2.autoSize = false;
-                label2.height = 30f;
-                label2.width = 130f;
-                label2.verticalAlignment = UIVerticalAlignment.Middle;
-                label2 = pnlWaterPipeDowngrade.AddUIComponent<UILabel>();
-                label2.text = 0.ToString(ColossalFramework.Globalization.Locale.Get("MONEY_FORMAT"), LocaleManager.cultureInfo);
-                label2.font = SamsamTS.UIUtils.Font;
-                label2.textColor = Color.yellow;
-                label2.textScale = 0.8f;
-                label2.autoSize = false;
-                label2.height = 30f;
-                label2.width = 140f;
-                label2.textAlignment = UIHorizontalAlignment.Right;
-                label2.verticalAlignment = UIVerticalAlignment.Middle;
-                this._lbldowngradeCost = label2;
+            // Add container at specified position.
+            UIPanel container = parent.AddUIComponent<UIPanel>();
+            container.height = 25;
+            container.relativePosition = new Vector3(xPos, yPos);
 
-                UIButton btnCalcDownG = SamsamTS.UIUtils.CreateButton(pnlContainer, "Calculate Downgrade", 150, 22, new Vector3(130, 110));
-                //btnCalcDownG.text = "Calculate DownGrade";
-                btnCalcDownG.tooltip = "Calculates the downgrade cost and the water pipe count.";
-                //btnCalcDownG.textScale = 0.8f;
-                //btnCalcDownG.width = 150f;
-                //btnCalcDownG.height = 22f;
-                //btnCalcDownG.relativePosition = new Vector3(130, 110);
-                btnCalcDownG.eventClick += (c, p) => Singleton<SimulationManager>.instance.AddAction(new System.Action(this.CalculateDowngrade));
+            // Add label.
+            UILabel label = container.AddUIComponent<UILabel>();
+            label.textScale = textScale;
+            label.text = text;
+            label.relativePosition = new Vector3(15f, 6f);
 
-                UIPanel local7 = pnlContainer.AddUIComponent<UIPanel>();
-                local7.width = base.width;
-                local7.height = 30f;
-                local7.autoLayoutDirection = LayoutDirection.Horizontal;
-                local7.autoLayoutStart = LayoutStart.TopLeft;
-                local7.autoLayoutPadding = new RectOffset(8, 0, 4, 4);
-                local7.autoLayout = true;
+            // Create dropdown menu.
+            UIDropDown dropDown = container.AddUIComponent<UIDropDown>();
+            dropDown.listBackground = "GenericPanelLight";
+            dropDown.itemHover = "ListItemHover";
+            dropDown.itemHighlight = "ListItemHighlight";
+            dropDown.normalBgSprite = "ButtonMenu";
+            dropDown.disabledBgSprite = "ButtonMenuDisabled";
+            dropDown.hoveredBgSprite = "ButtonMenuHovered";
+            dropDown.focusedBgSprite = "ButtonMenu";
+            dropDown.foregroundSpriteMode = UIForegroundSpriteMode.Stretch;
+            dropDown.popupColor = new Color32(45, 52, 61, 255);
+            dropDown.popupTextColor = new Color32(170, 170, 170, 255);
+            dropDown.zOrder = 1;
+            dropDown.verticalAlignment = UIVerticalAlignment.Middle;
+            dropDown.horizontalAlignment = UIHorizontalAlignment.Left;
+            dropDown.textFieldPadding = new RectOffset(8, 0, 8, 0);
+            dropDown.itemPadding = new RectOffset(14, 0, 8, 0);
 
-                label2 = local7.AddUIComponent<UILabel>();
-                label2.text = "Water Pipe count:";
-                label2.font = SamsamTS.UIUtils.Font;
-                label2.textColor = Color.green;
-                label2.textScale = 0.8f;
-                label2.autoSize = false;
-                label2.height = 30f;
-                label2.width = 130f;
-                label2.verticalAlignment = UIVerticalAlignment.Middle;
-                label2 = local7.AddUIComponent<UILabel>();
-                label2.text = "0";
-                label2.font = SamsamTS.UIUtils.Font;
-                label2.textColor = Color.green;
-                label2.textScale = 0.8f;
-                label2.autoSize = false;
-                label2.height = 30f;
-                label2.width = 140f;
-                label2.textAlignment = UIHorizontalAlignment.Right;
-                label2.verticalAlignment = UIVerticalAlignment.Middle;
-                this._lblwaterpipeCount = label2;
+            // Dropdown relative position.
+            dropDown.relativePosition = new Vector3(130f, 0f);
 
-                UIPanel local8 = pnlContainer.AddUIComponent<UIPanel>();
-                local8.width = base.width;
-                local8.height = 30f;
-                local8.autoLayoutDirection = LayoutDirection.Horizontal;
-                local8.autoLayoutStart = LayoutStart.TopLeft;
-                local8.autoLayoutPadding = new RectOffset(8, 0, 4, 4);
-                local8.autoLayout = true;
+            // Dropdown size parameters.
+            dropDown.size = new Vector2(width, Height);
+            dropDown.listWidth = (int)width;
+            dropDown.listHeight = 500;
+            dropDown.itemHeight = (int)itemHeight;
+            dropDown.textScale = textScale;
 
-                button = SamsamTS.UIUtils.CreateButton(local8, "Downgrade", 75, 22, new Vector3());
-                button.text = "Downgrade";
-                button.tooltip = "Tries to downgrade all heating pipes to water pipes.";
-                button.textScale = 0.8f;
-                button.width = 75f;
-                button.height = 22f;
-                button.eventClick += (c, p) => Singleton<SimulationManager>.instance.AddAction(new System.Action(this.DowngradePipes));
+            // Create dropdown button.
+            UIButton button = dropDown.AddUIComponent<UIButton>();
+            dropDown.triggerButton = button;
+            button.size = dropDown.size;
+            button.text = "";
+            button.relativePosition = new Vector3(0f, 0f);
+            button.textVerticalAlignment = UIVerticalAlignment.Middle;
+            button.textHorizontalAlignment = UIHorizontalAlignment.Left;
+            button.normalFgSprite = "IconDownArrow";
+            button.hoveredFgSprite = "IconDownArrowHovered";
+            button.pressedFgSprite = "IconDownArrowPressed";
+            button.focusedFgSprite = "IconDownArrowFocused";
+            button.disabledFgSprite = "IconDownArrowDisabled";
+            button.spritePadding = new RectOffset(3, 3, 3, 3);
+            button.foregroundSpriteMode = UIForegroundSpriteMode.Fill;
+            button.horizontalAlignment = UIHorizontalAlignment.Right;
+            button.verticalAlignment = UIVerticalAlignment.Middle;
+            button.zOrder = 0;
 
-                label2 = local8.AddUIComponent<UILabel>();
-                label2.text = "";
-                label2.font = SamsamTS.UIUtils.Font;
-                label2.textColor = Color.white;
-                label2.textScale = 0.8f;
-                label2.autoSize = false;
-                label2.height = 30f;
-                label2.width = (base.width - button.width) - 16f;
-                label2.verticalAlignment = UIVerticalAlignment.Middle;
-                this._lbldowngradeResult = label2;
+            // Allow for long translation strings.
+            dropDown.autoListWidth = true;
+
+            // Add items.
+            dropDown.items = items;
+            dropDown.selectedIndex = selectedIndex;
+
+            return dropDown;
+        }
+
+
+        /// <summary>
+        /// Creates a plain dropdown using the game's option panel dropdown template.
+        /// </summary>
+        /// <param name="parent">Parent component</param>
+        /// <param name="text">Descriptive label text</param>
+        /// <param name="items">Dropdown menu item list</param>
+        /// <param name="selectedIndex">Initially selected index (default 0)</param>
+        /// <param name="width">Width of dropdown (default 60)</param>
+        /// <returns></returns>
+        public static UIDropDown AddPlainDropDown(UIComponent parent, string text, string[] items, int selectedIndex = 0, float width = 270f)
+        {
+            UIPanel panel = parent.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsDropdownTemplate")) as UIPanel;
+            UIDropDown dropDown = panel.Find<UIDropDown>("Dropdown");
+
+            // Set text.
+            panel.Find<UILabel>("Label").text = text;
+
+            // Slightly increase width.
+            dropDown.autoSize = false;
+            dropDown.width = width;
+
+            // Add items.
+            dropDown.items = items;
+            dropDown.selectedIndex = selectedIndex;
+
+            return dropDown;
+        }
+
+
+        /// <summary>
+        /// Adds a slider with a descriptive text label above and an automatically updating value label immediately to the right.
+        /// </summary>
+        /// <param name="parent">Panel to add the control to</param>
+        /// <param name="text">Descriptive label text</param>
+        /// <param name="min">Slider minimum value</param>
+        /// <param name="max">Slider maximum value</param>
+        /// <param name="step">Slider minimum step</param>
+        /// <param name="defaultValue">Slider initial value</param>
+        /// <param name="eventCallback">Slider event handler</param>
+        /// <param name="width">Slider width (excluding value label to right) (default 600)</param>
+        /// <returns>New UI slider with attached labels</returns>
+        public static UISlider AddSliderWithValue(UIComponent parent, string text, float min, float max, float step, float defaultValue, OnValueChanged eventCallback, float width = 600f)
+        {
+            // Add slider component.
+            UIPanel sliderPanel = parent.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsSliderTemplate")) as UIPanel;
+            sliderPanel.Find<UILabel>("Label").text = text;
+
+            // Label.
+            UILabel sliderLabel = sliderPanel.Find<UILabel>("Label");
+            sliderLabel.autoHeight = true;
+            sliderLabel.width = width;
+            sliderLabel.anchor = UIAnchorStyle.Left | UIAnchorStyle.Top;
+            sliderLabel.relativePosition = Vector3.zero;
+            sliderLabel.relativePosition = Vector3.zero;
+            sliderLabel.text = text;
+
+            // Slider configuration.
+            UISlider newSlider = sliderPanel.Find<UISlider>("Slider");
+            newSlider.minValue = min;
+            newSlider.maxValue = max;
+            newSlider.stepSize = step;
+            newSlider.value = defaultValue;
+
+            // Move default slider position to match resized label.
+            sliderPanel.autoLayout = false;
+            newSlider.anchor = UIAnchorStyle.Left | UIAnchorStyle.Top;
+            newSlider.relativePosition = PositionUnder(sliderLabel);
+            newSlider.width = width;
+
+            // Increase height of panel to accomodate it all plus some extra space for margin.
+            sliderPanel.autoSize = false;
+            sliderPanel.width = width + 50f;
+            sliderPanel.height = newSlider.relativePosition.y + newSlider.height + 20f;
+
+            // Value label.
+            UILabel valueLabel = sliderPanel.AddUIComponent<UILabel>();
+            valueLabel.name = "ValueLabel";
+            valueLabel.text = newSlider.value.ToString();
+            valueLabel.relativePosition = PositionRightOf(newSlider, 8f, 1f);
+
+            // Event handler to update value label.
+            newSlider.eventValueChanged += (component, value) =>
+            {
+                valueLabel.text = value.ToString();
+                eventCallback(value);
+            };
+
+            return newSlider;
+        }
+
+
+        /// <summary>
+        /// Adds a checkbox with a descriptive text label immediately to the right.
+        /// </summary>
+        /// <param name="parent">Parent component</param>
+        /// <param name="text">Descriptive label text</param>
+        /// <returns>New UI checkbox with attached labels</returns>
+        public static UICheckBox AddCheckBox(UIComponent parent, string text)
+        {
+            UICheckBox checkBox = parent.AddUIComponent<UICheckBox>();
+
+            // Size and position.
+            checkBox.height = 20f;
+            checkBox.clipChildren = true;
+
+            // Sprites.
+            UISprite sprite = checkBox.AddUIComponent<UISprite>();
+            sprite.spriteName = "check-unchecked";
+            sprite.size = new Vector2(16f, 16f);
+            sprite.relativePosition = Vector3.zero;
+
+            checkBox.checkedBoxObject = sprite.AddUIComponent<UISprite>();
+            ((UISprite)checkBox.checkedBoxObject).spriteName = "check-checked";
+            checkBox.checkedBoxObject.size = new Vector2(16f, 16f);
+            checkBox.checkedBoxObject.relativePosition = Vector3.zero;
+
+            // Label.
+            checkBox.label = checkBox.AddUIComponent<UILabel>();
+            checkBox.label.text = text;
+            checkBox.label.relativePosition = new Vector3(21f, 2f);
+            checkBox.label.height = 20f;
+            checkBox.label.autoSize = true;
+
+            // Dynamic width to accomodate label.
+            checkBox.width = checkBox.label.width + 21f;
+
+            return checkBox;
+        }
+
+
+        /// <summary>
+        /// Creates a plain checkbox using the game's option panel checkbox template.
+        /// </summary>
+        /// <param name="parent">Parent component</param>
+        /// <param name="text">Descriptive label text</param>
+        /// <returns></returns>
+        public static UICheckBox AddPlainCheckBox(UIComponent parent, string text)
+        {
+            UICheckBox checkBox = parent.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsCheckBoxTemplate")) as UICheckBox;
+
+            // Set text.
+            checkBox.text = text;
+
+            return checkBox;
+        }
+
+
+        /// <summary>
+        /// Creates an options-panel-style helper group.
+        /// </summary>
+        /// <param name="parent">Parent component</param>
+        /// <param name="text">Heading label text</param>
+        /// <returns></returns>
+        public static UIPanel AddHelperGroup(UIComponent parent, string text)
+        {
+            UIPanel panel = parent.AttachUIComponent(UITemplateManager.GetAsGameObject("OptionsGroupTemplate")) as UIPanel;
+            panel.Find<UILabel>("Label").text = text;
+
+            return panel;
+        }
+
+
+        /// <summary>
+        /// Creates a blank options-panel spacer.
+        /// </summary>
+        /// <param name="parent">Parent component</param>
+        /// <param name="parent">Spacer height (default 35)</param>
+        /// <returns></returns>
+        public static UIPanel AddPanelSpacer(UIComponent parent, float height = 35f)
+        {
+            UIPanel panel = parent.AddUIComponent<UIPanel>();
+
+            panel.autoSize = false;
+            panel.height = height;
+            panel.width = parent.width - (panel.relativePosition.x * 2);
+            panel.backgroundSprite = "ContentManagerItemBackground";
+
+            return panel;
+        }
+
+
+        /// <summary>
+        /// Returns a relative position below a specified UI component, suitable for placing an adjacent component.
+        /// </summary>
+        /// <param name="uIComponent">Original (anchor) UI component</param>
+        /// <param name="margin">Margin between components (default 8)</param>
+        /// <param name="horizontalOffset">Horizontal offset from first to second component (default 0)</param>
+        /// <returns>Offset position (below original)</returns>
+        private static Vector3 PositionUnder(UIComponent uIComponent, float margin = 8f, float horizontalOffset = 0f)
+        {
+            return new Vector3(uIComponent.relativePosition.x + horizontalOffset, uIComponent.relativePosition.y + uIComponent.height + margin);
+        }
+
+
+        /// <summary>
+        /// Returns a relative position to the right of a specified UI component, suitable for placing an adjacent component.
+        /// </summary>
+        /// <param name="uIComponent">Original (anchor) UI component</param>
+        /// <param name="margin">Margin between components (default 8)</param>
+        /// <param name="verticalOffset">Vertical offset from first to second component (default 0)</param>
+        /// <returns>Offset position (to right of original)</returns>
+        public static Vector3 PositionRightOf(UIComponent uIComponent, float margin = 8f, float verticalOffset = 0f)
+        {
+            return new Vector3(uIComponent.relativePosition.x + uIComponent.width + margin, uIComponent.relativePosition.y + verticalOffset);
+        }
+
+    }
+}

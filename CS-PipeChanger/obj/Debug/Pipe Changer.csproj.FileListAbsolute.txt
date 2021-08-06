@@ -20,3 +20,14 @@ f:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChange
 f:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChanger\obj\Debug\Pipe Changer.csproj.CopyComplete
 f:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChanger\obj\Debug\Pipe Changer.dll
 f:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChanger\obj\Debug\Pipe Changer.pdb
+h:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChanger\bin\Debug\Pipe Changer.dll
+h:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChanger\bin\Debug\Pipe Changer.pdb
+h:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChanger\bin\Debug\Assembly-CSharp.dll
+h:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChanger\bin\Debug\ColossalManaged.dll
+h:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChanger\bin\Debug\ICities.dll
+h:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChanger\bin\Debug\UnityEngine.dll
+h:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChanger\obj\Debug\Pipe Changer.csproj.AssemblyReference.cache
+h:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChanger\obj\Debug\Pipe Changer.csproj.CoreCompileInputs.cache
+h:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChanger\obj\Debug\Pipe Changer.csproj.CopyComplete
+h:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChanger\obj\Debug\Pipe Changer.dll
+h:\-= CODING =-\-= CITIES SKYLINES =-\-= AKTUELL =-\CS-PipeChanger\CS-PipeChanger\obj\Debug\Pipe Changer.pdb

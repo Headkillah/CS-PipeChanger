@@ -1,38 +1,39 @@
-using System;
 using ColossalFramework;
 using ColossalFramework.UI;
 using ICities;
+using System;
 using UnityEngine;
-
 
 namespace PipeChanger.GUI
 {
     /// <summary>
     /// Settings UI, code borrowed from TM:PE mod
     /// </summary>
-    public class SettingsUI {
-
+    public class SettingsUI
+    {
         private const float ROW_WIDTH = 744f - 15f;
         private const float ROW_HEIGHT = 34f;
-        
+
         private SavedInputKey _currentlyEditingBinding;
-        
-        public void BuildUI(UIHelper helper) {
+
+        public void BuildUI(UIHelper helper)
+        {
             UIHelperBase group = helper.AddGroup("Shortcuts:");
-            UIPanel panel = CreateRowPanel((UIPanel) ((UIHelper) group).self);
+            UIPanel panel = CreateRowPanel((UIPanel)((UIHelper)group).self);
 
             CreateLabel(panel, "Mod Activation Key", 0.6f);
             CreateKeybindButton(panel, ModSettings.instance.MainKey, 0.3f);
 
             UIHelperBase group2 = helper.AddGroup("Other");
-            UIPanel panel2 = CreateRowPanel((UIPanel) ((UIHelper) group2).self);
-           // group2.AddCheckbox("Enable Verbose Logging", ModSettings.instance.DEBUG_LOG_ON, onDebugLoggingChanged);
-            CreateResetMenuPosition(panel2);
-        }
+            UIPanel panel2 = CreateRowPanel((UIPanel)((UIHelper)group2).self);
 
-        private void onDebugLoggingChanged(bool bValue)
-        {            
-        //    ModSettings.instance.DEBUG_LOG_ON.value = bValue;
+            ((UIComponent)group2.AddCheckbox(
+                     "Enable Verbose Logging",
+                     ModSettings.VerboseLogging,
+                     b => ModSettings.VerboseLogging.value = b))
+                 .tooltip = "Enable verbose logging for catching errors.";
+
+            CreateResetMenuPosition(panel2);
         }
 
         public void CreateResetMenuPosition(UIPanel parent)
@@ -49,10 +50,11 @@ namespace PipeChanger.GUI
         private void OnResetClicked(UIComponent component, UIMouseEventParameter eventparam)
         {
             ModSettings.instance.ResetMenuPosition();
-            if (ModSettings.instance.DEBUG_LOG_ON) { Util.DebugPrint("OnResetClicked"); }
+            if (ModSettings.VerboseLogging) { Util.DebugPrint("OnResetClicked"); }
         }
 
-        public UIPanel CreateRowPanel(UIComponent currentGroup) {
+        public UIPanel CreateRowPanel(UIComponent currentGroup)
+        {
             var rowPanel = currentGroup.AddUIComponent<UIPanel>();
             rowPanel.size = new Vector2(ROW_WIDTH, ROW_HEIGHT);
             rowPanel.autoLayoutStart = LayoutStart.TopLeft;
@@ -62,7 +64,8 @@ namespace PipeChanger.GUI
             return rowPanel;
         }
 
-        public UILabel CreateLabel(UIPanel parent, string text, float widthFraction) {
+        public UILabel CreateLabel(UIPanel parent, string text, float widthFraction)
+        {
             var label = parent.AddUIComponent<UILabel>();
             label.wordWrap = true;
             label.autoSize = false;
@@ -76,7 +79,8 @@ namespace PipeChanger.GUI
         public void CreateKeybindButton(
             UIPanel parent,
             SavedInputKey editKey,
-            float widthFraction) {
+            float widthFraction)
+        {
             var btn = parent.AddUIComponent<UIButton>();
             btn.size = new Vector2(ROW_WIDTH * widthFraction, ROW_HEIGHT);
             btn.text = ToLocalizedString(editKey);
@@ -91,15 +95,19 @@ namespace PipeChanger.GUI
             AddXButton(parent, editKey, btn);
         }
 
-        private void OnBindingMouseDown(UIComponent component, UIMouseEventParameter evParam) {
-            var editable = (SavedInputKey) evParam.source.objectUserData;
+        private void OnBindingMouseDown(UIComponent component, UIMouseEventParameter evParam)
+        {
+            var editable = (SavedInputKey)evParam.source.objectUserData;
             var keybindButton = evParam.source as UIButton;
 
             // This will only work if the user is not in the process of changing the shortcut
-            if (_currentlyEditingBinding == null) {
+            if (_currentlyEditingBinding == null)
+            {
                 evParam.Use();
                 StartKeybindEditMode(editable, keybindButton);
-            } else if (!IsUnbindableMouseButton(evParam.buttons)) {
+            }
+            else if (!IsUnbindableMouseButton(evParam.buttons))
+            {
                 // This will work if the user clicks while the shortcut change is in progress
                 evParam.Use();
                 var editedBinding = _currentlyEditingBinding; // will be nulled by closing modal
@@ -113,50 +121,59 @@ namespace PipeChanger.GUI
 
                 keybindButton.buttonsMask = UIMouseButton.Left;
                 keybindButton.text = ToLocalizedString(editedBinding);
-                _currentlyEditingBinding = null;                
+                _currentlyEditingBinding = null;
             }
         }
 
-        private void OnBindingKeyDown(UIComponent component, UIKeyEventParameter evParam) {
-            try {
-                if (IsModifierKey(evParam.keycode)) {
+        private void OnBindingKeyDown(UIComponent component, UIKeyEventParameter evParam)
+        {
+            try
+            {
+                if (IsModifierKey(evParam.keycode))
+                {
                     return;
                 }
 
-                evParam.Use(); 
+                evParam.Use();
                 var editedBinding = _currentlyEditingBinding;
                 UIView.PopModal();
 
                 var keybindButton = evParam.source as UIButton;
                 var inputKey = SavedInputKey.Encode(evParam.keycode, evParam.control, evParam.shift, evParam.alt);
 
-                if (evParam.keycode != KeyCode.Escape) {
+                if (evParam.keycode != KeyCode.Escape)
+                {
                     editedBinding.value = inputKey;
                 }
 
                 keybindButton.text = ToLocalizedString(editedBinding);
                 _currentlyEditingBinding = null;
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Debug.LogError($"{e}");
             }
         }
 
         private static void AddXButton(UIPanel parent,
             SavedInputKey editKey,
-            UIButton alignTo) {
+            UIButton alignTo)
+        {
             UIButton btnX = parent.AddUIComponent<UIButton>();
             btnX.autoSize = false;
             btnX.size = new Vector2(ROW_HEIGHT, ROW_HEIGHT);
             btnX.normalBgSprite = "buttonclose";
             btnX.hoveredBgSprite = "buttonclosehover";
             btnX.pressedBgSprite = "buttonclosepressed";
-            btnX.eventClicked += (component, eventParam) => {
+            btnX.eventClicked += (component, eventParam) =>
+            {
                 editKey.value = SavedInputKey.Empty;
                 alignTo.text = ToLocalizedString(editKey);
             };
         }
 
-        private void StartKeybindEditMode(SavedInputKey editable, UIButton keybindButton) {
+        private void StartKeybindEditMode(SavedInputKey editable, UIButton keybindButton)
+        {
             _currentlyEditingBinding = editable;
 
             keybindButton.buttonsMask =
@@ -168,70 +185,87 @@ namespace PipeChanger.GUI
             UIView.PushModal(keybindButton, OnKeybindModalPopped);
         }
 
-        private void OnKeybindModalPopped(UIComponent component) {
+        private void OnKeybindModalPopped(UIComponent component)
+        {
             var keybindButton = component as UIButton;
-            if (keybindButton != null && _currentlyEditingBinding != null) {
+            if (keybindButton != null && _currentlyEditingBinding != null)
+            {
                 keybindButton.text = ToLocalizedString(_currentlyEditingBinding);
                 _currentlyEditingBinding = null;
             }
         }
 
-        public static string ToLocalizedString(SavedInputKey k) {
-            if (k.value == SavedInputKey.Empty) {
+        public static string ToLocalizedString(SavedInputKey k)
+        {
+            if (k.value == SavedInputKey.Empty)
+            {
                 return "None";
             }
 
             return k.ToLocalizedString("KEYNAME");
         }
 
-        public static bool IsModifierKey(KeyCode code) {
+        public static bool IsModifierKey(KeyCode code)
+        {
             return code == KeyCode.LeftControl || code == KeyCode.RightControl ||
                    code == KeyCode.LeftShift || code == KeyCode.RightShift ||
                    code == KeyCode.LeftAlt || code == KeyCode.RightAlt;
         }
 
-        public static bool IsControlDown() {
+        public static bool IsControlDown()
+        {
             return Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
         }
 
-        public static bool IsShiftDown() {
+        public static bool IsShiftDown()
+        {
             return Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
         }
 
-        public static bool IsAltDown() {
+        public static bool IsAltDown()
+        {
             return Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
         }
 
-        public static bool IsUnbindableMouseButton(UIMouseButton code) {
+        public static bool IsUnbindableMouseButton(UIMouseButton code)
+        {
             return code == UIMouseButton.Left || code == UIMouseButton.Right;
         }
 
-        public static KeyCode ButtonToKeycode(UIMouseButton button) {
-            if (button == UIMouseButton.Left) {
+        public static KeyCode ButtonToKeycode(UIMouseButton button)
+        {
+            if (button == UIMouseButton.Left)
+            {
                 return KeyCode.Mouse0;
             }
 
-            if (button == UIMouseButton.Right) {
+            if (button == UIMouseButton.Right)
+            {
                 return KeyCode.Mouse1;
             }
 
-            if (button == UIMouseButton.Middle) {
+            if (button == UIMouseButton.Middle)
+            {
                 return KeyCode.Mouse2;
             }
 
-            if (button == UIMouseButton.Special0) {
+            if (button == UIMouseButton.Special0)
+            {
                 return KeyCode.Mouse3;
             }
 
-            if (button == UIMouseButton.Special1) {
+            if (button == UIMouseButton.Special1)
+            {
                 return KeyCode.Mouse4;
             }
 
-            if (button == UIMouseButton.Special2) {
+            if (button == UIMouseButton.Special2)
+            {
                 return KeyCode.Mouse5;
             }
 
-            if (button == UIMouseButton.Special3) {
+            if (button == UIMouseButton.Special3)
+            {
                 return KeyCode.Mouse6;
             }
 

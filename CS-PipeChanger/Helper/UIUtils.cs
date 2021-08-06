@@ -1,6 +1,6 @@
+using ColossalFramework.UI;
 using System.Collections.Generic;
 using UnityEngine;
-using ColossalFramework.UI;
 
 namespace SamsamTS
 {
@@ -18,30 +18,27 @@ namespace SamsamTS
         public static UIDragHandle CreateDragHandle(UIComponent parent, float width, float height)
         {
             UIDragHandle dragHandle = (UIDragHandle)parent.AddUIComponent<UIDragHandle>();
-            //dragHandle.width = width;
-            //dragHandle.height = height;
-            //dragHandle.relativePosition = Vector3.zero;
             dragHandle.area = new Vector4(0, 0, width, height);
             dragHandle.target = parent;
             return dragHandle;
         }
 
-        public static UIButton CreateButton(UIComponent parent, string name, string text, Vector2 position)
+        public static UIButton CreateButton(UIComponent parent, string name, string text, Vector3 position)
         {
             UIButton button = parent.AddUIComponent<UIButton>();
             button.name = name;
             button.atlas = GetAtlas("Ingame");
-            button.position = position;
+            button.relativePosition = position;
             button.text = text;
-            button.textPadding = new RectOffset(0, 0, 4, 0);
-            button.textScale = 0.9f;
+            button.textPadding = new RectOffset(4, 4, 4, 4);
+            button.textScale = 1.0f;
             button.normalBgSprite = "ButtonMenu";
             button.hoveredBgSprite = "ButtonMenuHovered";
             button.pressedBgSprite = "ButtonMenuPressed";
             button.disabledBgSprite = "ButtonMenuDisabled";
             button.disabledTextColor = new Color32(80, 80, 80, 128);
             button.canFocus = false;
-            //button.playAudioEvents = true;
+            button.font = _font;
 
             return button;
         }
@@ -54,19 +51,19 @@ namespace SamsamTS
             button.normalBgSprite = "buttonclose";
             button.hoveredBgSprite = "buttonclosehover";
             button.pressedBgSprite = "buttonclosepressed";
-            button.relativePosition = new Vector3(parent.width - button.width -35, 5f);
+            button.relativePosition = new Vector3(parent.width - button.width - 10, 5f);
 
             return button;
         }
 
-        public static UILabel CreateTitleLabel(UIComponent parent, string name, string text, Vector2 position)
+        public static UILabel CreateTitleLabel(UIComponent parent, string name, string text, Vector3 position)
         {
             UILabel label = parent.AddUIComponent<UILabel>();
             label.name = name;
             label.text = text;
             label.textAlignment = UIHorizontalAlignment.Center;
             label.textScale = 1.2f;
-            label.height = 45f;
+            label.height = 40f;
             label.opacity = 0.8f;
             label.font = _font;
             label.relativePosition = position;
@@ -74,13 +71,12 @@ namespace SamsamTS
             return label;
         }
 
-        public static UILabel CreateLabel(UIComponent parent, string name, string text, Vector2 position)
+        public static UILabel CreateLabel(UIComponent parent, string name, string text, Vector3 position)
         {
-            UILabel label = parent.AddUIComponent<UILabel>();                      
+            UILabel label = parent.AddUIComponent<UILabel>();
             label.name = name;
             label.text = text;
-            label.position = position;
-            label.textScale = 1.1f;
+            label.relativePosition = position;
             label.font = _font;
 
             return label;
@@ -306,6 +302,30 @@ namespace SamsamTS
             }
 
             return _atlases[name];
+        }
+
+        /// <summary>
+        /// Returns a relative position below a specified UI component, suitable for placing an adjacent component.
+        /// </summary>
+        /// <param name="uIComponent">Original (anchor) UI component</param>
+        /// <param name="margin">Margin between components (default 8)</param>
+        /// <param name="horizontalOffset">Horizontal offset from first to second component (default 0)</param>
+        /// <returns>Offset position (below original)</returns>
+        private static Vector3 PositionUnder(UIComponent uIComponent, float margin = 8f, float horizontalOffset = 0f)
+        {
+            return new Vector3(uIComponent.relativePosition.x + horizontalOffset, uIComponent.relativePosition.y + uIComponent.height + margin);
+        }
+
+        /// <summary>
+        /// Returns a relative position to the right of a specified UI component, suitable for placing an adjacent component.
+        /// </summary>
+        /// <param name="uIComponent">Original (anchor) UI component</param>
+        /// <param name="margin">Margin between components (default 8)</param>
+        /// <param name="verticalOffset">Vertical offset from first to second component (default 0)</param>
+        /// <returns>Offset position (to right of original)</returns>
+        public static Vector3 PositionRightOf(UIComponent uIComponent, float margin = 8f, float verticalOffset = 0f)
+        {
+            return new Vector3(uIComponent.relativePosition.x + uIComponent.width + margin, uIComponent.relativePosition.y + verticalOffset);
         }
 
         public static UIFont Font
